@@ -17,7 +17,7 @@ def lang_filepath
 end
 
 # PLEASE use `.yml` for your lang dictionaries
-def select_lang(*k)
+def i18n_yaml(*k)
   dictionary = YAML.load_file(lang_filepath + "#{LANG}.yml")
   key_strings = k.map(&:to_s)
   dictionary.dig(LANG, *key_strings)
@@ -25,12 +25,12 @@ end
 
 def i18n_messages(*k)
   i18n_keys = [:messages, *k]
-  select_lang(*i18n_keys)
+  i18n_yaml(*i18n_keys)
 end
 
 def i18n_buttons(*k)
   i18n_keys = [:buttons, *k]
-  select_lang(*i18n_keys)
+  i18n_yaml(*i18n_keys)
 end
 
 def interpolate_template(yaml_content, method_as_binding)
@@ -44,13 +44,14 @@ def message_start(bot, message)
                        text:,
                        parse_mode: 'HTML',
                        disable_notification: true)
-
-  check_consciousnes(bot, message)
+  # start with checking the consciousness
+  check_consciousness(bot, message)
 end
 
 def stabilize_message(bot, message)
+  text = i18n_messages(:stabilize)
   bot.api.send_message(chat_id: message.from.id,
-                       text: i18n_messages(:stabilize),
+                       text:,
                        parse_mode: 'HTML',
                        disable_web_page_preview: true)
 end
@@ -58,7 +59,6 @@ end
 def finish_with_calling_help(bot, message)
   name = message.from.first_name
   text = interpolate_template(i18n_messages(:finish), binding)
-
   bot.api.send_message(chat_id: message.from.id,
                        text:,
                        parse_mode: 'HTML',
@@ -74,7 +74,7 @@ def buttons_consciousnes
                                                   callback_data: 'con_no')]
 end
 
-def check_consciousnes(bot, message)
+def check_consciousness(bot, message)
   markup = Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: buttons_consciousnes)
   text = i18n_messages(:consciousness)
   bot.api.send_message(chat_id: message.chat.id,
@@ -121,13 +121,16 @@ Telegram::Bot::Client.run(token) do |bot|
       # Here you can handle your callbacks from inline buttons
       case message.data
       when 'con_yes'
-        bot.api.send_photo(chat_id: message.from.id, photo: Faraday::UploadIO.new((lang_filepath + '/steps.jpg'), 'image/jpeg'),
+        bot.api.send_photo(chat_id: message.from.id,
+                           photo: Faraday::UploadIO.new((lang_filepath + '/steps.jpg'), 'image/jpeg'),
                            caption: 'Copyright: https://www.drk.de/fileadmin/_processed_/9/9/csm_auffinden-einer-person_7de371f707.jpg')
-        finish_with_calling_help(bot, message)
+                    
+          # thankfully the injured is conscious
+          finish_with_calling_help(bot, message)
       when 'con_no'
         bot.api.send_photo(chat_id: message.from.id,
-                           photo: Faraday::UploadIO.new((lang_filepath + '/steps.jpg'),
-                                                        'image/jpeg'))
+                           photo: Faraday::UploadIO.new((lang_filepath + '/steps.jpg'), 'image/jpeg')
+                           caption: 'Copyright: https://www.drk.de/fileadmin/_processed_/9/9/csm_auffinden-einer-person_7de371f707.jpg')
         check_breathing(bot, message)
       when 'breathing_yes'
         stabilize(bot, message)
