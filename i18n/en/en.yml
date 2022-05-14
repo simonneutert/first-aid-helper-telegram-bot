@@ -1,0 +1,48 @@
+en:
+  messages:
+    start: |
+      Hello, <strong><%= name %></strong>, please, stay calm! I will guide you step by step!
+
+      <strong>Take care of the injured first!
+      Make others around aware, they could call the ambulance.</strong>
+
+    stabilize: |
+      <strong>Bring the injured person into stable lateral position.</strong>
+
+      https://www.drk.de/hilfe-in-deutschland/erste-hilfe/stabile-seitenlage/
+    breathing_check: |
+      <strong>Check for breathing.</strong>
+
+      https://www.drk.de/hilfe-in-deutschland/erste-hilfe/atmung/atemkontrolle/
+    unconscious_not_breathing: |
+      THIS IS SERIOUS!
+
+      <strong>You must conduct cardiovascular ventilation!</strong>
+
+      https://www.drk.de/hilfe-in-deutschland/erste-hilfe/herz-lungen-wiederbelebung/
+    finish: |
+      <strong>Call the ambulance!</strong> Please, try to follow the protocol.
+      <i>IMPORTANT! Do NOT hang up in a hurry!</i>
+
+      Where are you?
+      Who is calling?
+      What happened?
+      How many are injured?
+      WAIT FOR QUESTIONS!
+
+      Stay with the ones in need! Thank you very much for your effort! Make sure the ambulance can find you!
+
+      You can stop the bot by typing or clicking /stop
+    stop: |
+      Thank you for your efforts, <%= name %>! Typing /start will reset me!
+    consciousness: |
+      <strong>Is the one in need conscious? Try talking an touching to make sure.</strong>
+
+      https://www.drk.de/hilfe-in-deutschland/erste-hilfe/bewusstlosigkeit/
+  buttons:
+    consciousness:
+      ok: "conscious ✅"
+      not_ok: "unconscious 🚫"
+    breathing:
+      ok: "breathing ✅"
+      not_ok: "not breathing 🚫"
