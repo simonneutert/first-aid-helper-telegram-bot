@@ -23,13 +23,23 @@ def select_lang(*k)
   dictionary.dig(LANG, *key_strings)
 end
 
+def i18n_messages(*k)
+  i18n_keys = [:messages, *k]
+  select_lang(*i18n_keys)
+end
+
+def i18n_buttons(*k)
+  i18n_keys = [:buttons, *k]
+  select_lang(*i18n_keys)
+end
+
 def interpolate_template(yaml_content, method_as_binding)
   ERB.new(yaml_content).result(method_as_binding)
 end
 
 def message_start(bot, message)
   name = message.from.first_name
-  text = interpolate_template(select_lang(:messages, :start), binding)
+  text = interpolate_template(i18n_messages(:start), binding)
   bot.api.send_message(chat_id: message.chat.id,
                        text:,
                        parse_mode: 'HTML',
@@ -40,14 +50,14 @@ end
 
 def stabilize_message(bot, message)
   bot.api.send_message(chat_id: message.from.id,
-                       text: select_lang(:messages, :stabilize),
+                       text: i18n_messages(:stabilize),
                        parse_mode: 'HTML',
                        disable_web_page_preview: true)
 end
 
 def finish_with_calling_help(bot, message)
   name = message.from.first_name
-  text = interpolate_template(select_lang(:messages, :finish), binding)
+  text = interpolate_template(i18n_messages(:finish), binding)
 
   bot.api.send_message(chat_id: message.from.id,
                        text:,
@@ -56,8 +66,8 @@ def finish_with_calling_help(bot, message)
 end
 
 def buttons_consciousnes
-  button_yes = select_lang(:buttons, :consciousness, :ok)
-  button_no = select_lang(:buttons, :consciousness, :not_ok)
+  button_yes = i18n_buttons(:consciousness, :ok)
+  button_no = i18n_buttons(:consciousness, :not_ok)
   [Telegram::Bot::Types::InlineKeyboardButton.new(text: button_yes,
                                                   callback_data: 'con_yes'),
    Telegram::Bot::Types::InlineKeyboardButton.new(text: button_no,
@@ -66,7 +76,7 @@ end
 
 def check_consciousnes(bot, message)
   markup = Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: buttons_consciousnes)
-  text = select_lang(:messages, :consciousness)
+  text = i18n_messages(:consciousness)
   bot.api.send_message(chat_id: message.chat.id,
                        disable_web_page_preview: true,
                        text:,
@@ -76,7 +86,7 @@ end
 
 def message_stop(bot, message)
   name = message.from.first_name
-  text = interpolate_template(select_lang(:messages, :stop), binding)
+  text = interpolate_template(i18n_messages(:stop), binding)
   bot.api.send_message(chat_id: message.from.id, text:)
 end
 
@@ -86,8 +96,8 @@ def stabilize(bot, message)
 end
 
 def buttons_breathing
-  button_yes = select_lang(:buttons, :breathing, :ok)
-  button_no = select_lang(:buttons, :breathing, :not_ok)
+  button_yes = i18n_buttons(:breathing, :ok)
+  button_no = i18n_buttons(:breathing, :not_ok)
   [Telegram::Bot::Types::InlineKeyboardButton.new(text: button_yes,
                                                   callback_data: 'breathing_yes'),
    Telegram::Bot::Types::InlineKeyboardButton.new(text: button_no,
@@ -96,7 +106,7 @@ end
 
 def check_breathing(bot, message)
   markup = Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: buttons_breathing)
-  text = select_lang(:messages, :breathing_check)
+  text = i18n_messages(:breathing_check)
   bot.api.send_message(chat_id: message.from.id,
                        disable_web_page_preview: true,
                        text:,
@@ -122,9 +132,15 @@ Telegram::Bot::Client.run(token) do |bot|
       when 'breathing_yes'
         stabilize(bot, message)
       when 'breathing_no'
-        text = select_lang(:messages, :unconscious_not_breathing)
+        text = i18n_messages(:unconscious_not_breathing)
         bot.api.send_message(chat_id: message.from.id,
                              disable_web_page_preview: true,
+                             parse_mode: 'HTML',
+                             text:)
+
+        text = i18n_messages(:unconscious_not_breathing_hint)
+        bot.api.send_message(chat_id: message.from.id,
+                             disable_web_page_preview: false,
                              parse_mode: 'HTML',
                              text:)
       end

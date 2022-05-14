@@ -20,6 +20,14 @@ en:
       <strong>You must conduct cardiovascular ventilation!</strong>
 
       https://www.drk.de/hilfe-in-deutschland/erste-hilfe/herz-lungen-wiederbelebung/
+    unconscious_not_breathing_hint: |
+      You're supposed to pump 100 to 120 times per minute. Cooperate with somebody else if possible.
+
+      Keep pumping until the ambulance arrives, if the injured does not show any reaction coming back to life. 
+
+      The best rhythm for pumping is: STAYING ALIVE by the BeeGees
+
+      https://www.youtube.com/watch?v=fNFzfwLM72c
     finish: |
       <strong>Call the ambulance!</strong> Please, try to follow the protocol.
       <i>IMPORTANT! Do NOT hang up in a hurry!</i>
