@@ -1,0 +1,49 @@
+de:
+  messages:
+    start: |
+      Hallo, <strong><%= name %></strong>, bitte bleibe möglichst ruhig! Ich werde dich nun schrittweise unterstützen!
+
+      <strong>Bitte versorge zuerst die Verletzten!
+      Mache wenn mögliche umstehende Personen auf die Notfallsituation aufmerksam und bitte sie dich zu unterstützen oder zumindest den Notruf abzusetzen.</strong>
+
+      Notruf-Hotline ☎️ <strong><a href="tel:+112">112</a></strong>
+    stabilize: |
+      <strong>Bringe die verletzte Person nun in die stabilie Seitenlage.</strong>
+
+      https://www.drk.de/hilfe-in-deutschland/erste-hilfe/stabile-seitenlage/
+    breathing_check: |
+      <strong>Versuche nun bitte die Atmung zu kontrollieren.</strong>
+
+      https://www.drk.de/hilfe-in-deutschland/erste-hilfe/atmung/atemkontrolle/
+    unconscious_not_breathing: |
+      LEIDER IST DIE SITUATION SEHR ERNST!
+
+      <strong>Als nächsten Schritt musst du nun die Herzkreislauf-Beatmung durchführen!</strong>
+
+      https://www.drk.de/hilfe-in-deutschland/erste-hilfe/herz-lungen-wiederbelebung/
+    finish: |
+      <strong>Setze nun ggf. selbst den Notruf ab (112).</strong> Sammle dich und orientiere dich an den W-Fragen.
+      <i>WICHTIG! LEGE NICHT AUF BEVOR ALLES GEKLÄRT IST!</i>
+
+      Wo ist das Ereignis?
+      Wer ruft an?
+      Was ist geschehen?
+      Wie viele Verletzte?
+      Warten auf Rückfragen!
+
+      Bleibe bitte bei den Verletzten! Danke, dass du alles gegeben hast! Wenn möglich, stelle sicher, dass der Rettungswagen zur Unfallstelle findet! Bitte notfalls andere darum!
+
+      Beende den Bot mit dem Kommando /stop
+    stop: |
+      Danke für dein Vertrauen, <%= name %>! Mit dem Befehl /start kannst du mich jederzeit neustarten!
+    consciousness: |
+      <strong>Ist das Unfallopfer bei Bewusstsein? Betroffenen ansprechen und anfassen, um deren Bewusstsein zu überprüfen.</strong>
+
+      https://www.drk.de/hilfe-in-deutschland/erste-hilfe/bewusstlosigkeit/
+  buttons:
+    consciousness:
+      ok: "Bewusstsein ✅"
+      not_ok: "Bewusstlos 🚫"
+    breathing:
+      ok: "Atmung ✅"
+      not_ok: "Keine Atmung 🚫"
