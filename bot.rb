@@ -16,11 +16,24 @@ def lang_filepath
   "./i18n/#{LANG}/"
 end
 
+def i18n_files
+  Dir['./i18n/**/*.yml']
+end
+
+def i18n_dictionary
+  i18n = {}
+  i18n_files.each do |d|
+    i18n.merge! YAML.load_file(d)
+  end
+  i18n
+end
+
+DICTIONARY = i18n_dictionary
+
 # PLEASE use `.yml` for your lang dictionaries
 def i18n_yaml(*k)
-  dictionary = YAML.load_file(lang_filepath + "#{LANG}.yml")
-  key_strings = k.map(&:to_s)
-  dictionary.dig(LANG, *key_strings)
+  key_strings ||= k.map(&:to_s)
+  DICTIONARY.dig(LANG, *key_strings)
 end
 
 def i18n_messages(*k)
@@ -124,12 +137,12 @@ Telegram::Bot::Client.run(token) do |bot|
         bot.api.send_photo(chat_id: message.from.id,
                            photo: Faraday::UploadIO.new((lang_filepath + '/steps.jpg'), 'image/jpeg'),
                            caption: 'Copyright: https://www.drk.de/fileadmin/_processed_/9/9/csm_auffinden-einer-person_7de371f707.jpg')
-                    
-          # thankfully the injured is conscious
-          finish_with_calling_help(bot, message)
+
+        # thankfully the injured is conscious
+        finish_with_calling_help(bot, message)
       when 'con_no'
         bot.api.send_photo(chat_id: message.from.id,
-                           photo: Faraday::UploadIO.new((lang_filepath + '/steps.jpg'), 'image/jpeg')
+                           photo: Faraday::UploadIO.new((lang_filepath + '/steps.jpg'), 'image/jpeg'),
                            caption: 'Copyright: https://www.drk.de/fileadmin/_processed_/9/9/csm_auffinden-einer-person_7de371f707.jpg')
         check_breathing(bot, message)
       when 'breathing_yes'
