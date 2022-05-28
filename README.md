@@ -6,6 +6,8 @@ The bot primarily aims to be a sort of refresh tutorial. But could be used as a 
 
 It is interactive with buttons, following the medical predefined path of action.
 
+**If you speak an unsupported language, please send in a translation. Either in yaml, or anything else, we will make it fit!**
+
 ## Environment / Setup
 
 Please [setup a telegram bot](https://core.telegram.org/bots) for you to test. Then provide the given key via ENV (see below).
