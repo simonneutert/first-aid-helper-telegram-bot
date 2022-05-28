@@ -1,7 +1,9 @@
+# the telegram api `message` object is passed via the template engine
 en:
   messages:
     start: |
-      Hello, <strong><%= name %></strong>, please, stay calm! I will guide you step by step!
+      Hello, <strong><%= message.from.first_name %></strong>! I will guide you step by step!
+      <strong>You can scroll up anytime and press buttons again and I will guide you from there.</strong>
 
       <strong>Take care of the injured first!
       Make others around aware, they could call the ambulance.</strong>
@@ -42,7 +44,7 @@ en:
 
       You can stop the bot by typing or clicking /stop
     stop: |
-      Thank you for your efforts, <%= name %>! Typing /start will reset me!
+      Thank you for your efforts, <%= message.from.first_name %>! Typing /start will reset me!
     consciousness: |
       <strong>Is the one in need conscious? Try talking an touching to make sure.</strong>
 

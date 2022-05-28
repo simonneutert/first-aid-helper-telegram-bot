@@ -1,7 +1,9 @@
+# the telegram api `message` object is passed via the template engine
 de:
   messages:
     start: |
-      Hallo, <strong><%= name %></strong>, bitte bleibe möglichst ruhig! Ich werde dich nun schrittweise unterstützen!
+      Hallo, <strong><%= message.from.first_name %></strong>! Ich werde dich nun schrittweise unterstützen!
+      <strong>Du kannst jederzeit wieder nach obenscrollen und die Buttons erneut klicken.</strong>
 
       <strong>Bitte versorge zuerst die Verletzten!
       Mache wenn mögliche umstehende Personen auf die Notfallsituation aufmerksam und bitte sie dich zu unterstützen oder zumindest den Notruf abzusetzen.</strong>
@@ -43,7 +45,7 @@ de:
 
       Beende den Bot mit dem Kommando /stop
     stop: |
-      Danke für dein Vertrauen, <%= name %>! Mit dem Befehl /start kannst du mich jederzeit neustarten!
+      Danke für dein Vertrauen, <%= message.from.first_name %>! Mit dem Befehl /start kannst du mich jederzeit neustarten!
     consciousness: |
       <strong>Ist das Unfallopfer bei Bewusstsein? Betroffenen ansprechen und anfassen, um deren Bewusstsein zu überprüfen.</strong>
 

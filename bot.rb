@@ -6,10 +6,15 @@ require 'telegram/bot'
 token = ENV.delete('TELEGRAM_TOKEN')
 raise 'NO TOKEN GIVEN' unless token
 
+# LOAD LANGUAGE FILES
+
 LANG = begin
   ENV.fetch('BOT_LANG')
-rescue StandardError
-  'de' # default language is german
+rescue KeyError => e
+  puts e
+  puts 'Please set BOT_LANG key!'
+  # default language is German
+  'de'
 end
 
 def lang_filepath
@@ -22,16 +27,16 @@ end
 
 def i18n_dictionary
   i18n = {}
-  i18n_files.each do |d|
-    i18n.merge! YAML.load_file(d)
-  end
+  i18n_files.each { |f| i18n.merge! YAML.load_file(f) }
   i18n
 end
 
 DICTIONARY = i18n_dictionary
 
-# PLEASE use `.yml` for your lang dictionaries
+# TEMPLATING
+
 def i18n_yaml(*k)
+  # PLEASE use `.yml` for your lang dictionaries
   key_strings ||= k.map(&:to_s)
   DICTIONARY.dig(LANG, *key_strings)
 end
@@ -50,82 +55,131 @@ def interpolate_template(yaml_content, method_as_binding)
   ERB.new(yaml_content).result(method_as_binding)
 end
 
+# MESSAGING
+
+# send silent
 def message_start(bot, message)
-  name = message.from.first_name
-  text = interpolate_template(i18n_messages(:start), binding)
-  bot.api.send_message(chat_id: message.chat.id,
-                       text:,
-                       parse_mode: 'HTML',
-                       disable_notification: true)
+  bot.api.send_message(
+    chat_id: message.chat.id,
+    text: interpolate_template(i18n_messages(:start), binding),
+    parse_mode: 'HTML',
+    disable_notification: true
+  )
   # start with checking the consciousness
   check_consciousness(bot, message)
 end
 
-def stabilize_message(bot, message)
-  text = i18n_messages(:stabilize)
-  bot.api.send_message(chat_id: message.from.id,
-                       text:,
-                       parse_mode: 'HTML',
-                       disable_web_page_preview: true)
-end
-
-def finish_with_calling_help(bot, message)
-  name = message.from.first_name
-  text = interpolate_template(i18n_messages(:finish), binding)
-  bot.api.send_message(chat_id: message.from.id,
-                       text:,
-                       parse_mode: 'HTML',
-                       disable_web_page_preview: true)
-end
-
-def buttons_consciousnes
-  button_yes = i18n_buttons(:consciousness, :ok)
-  button_no = i18n_buttons(:consciousness, :not_ok)
-  [Telegram::Bot::Types::InlineKeyboardButton.new(text: button_yes,
-                                                  callback_data: 'con_yes'),
-   Telegram::Bot::Types::InlineKeyboardButton.new(text: button_no,
-                                                  callback_data: 'con_no')]
-end
-
-def check_consciousness(bot, message)
-  markup = Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: buttons_consciousnes)
-  text = i18n_messages(:consciousness)
-  bot.api.send_message(chat_id: message.chat.id,
-                       disable_web_page_preview: true,
-                       text:,
-                       parse_mode: 'HTML',
-                       reply_markup: markup)
-end
-
 def message_stop(bot, message)
-  name = message.from.first_name
-  text = interpolate_template(i18n_messages(:stop), binding)
-  bot.api.send_message(chat_id: message.from.id, text:)
+  bot.api.send_message(
+    chat_id: message.from.id,
+    text: interpolate_template(i18n_messages(:stop), binding)
+  )
 end
+
+# CONSCIOUSNESS
+
+def conscious_instructions(bot, message)
+  bot.api.send_photo(
+    chat_id: message.from.id,
+    photo: Faraday::UploadIO.new((lang_filepath + '/steps.jpg'), 'image/jpeg'),
+    caption: 'Copyright: https://www.drk.de/fileadmin/_processed_/9/9/csm_auffinden-einer-person_7de371f707.jpg'
+  )
+end
+
+def unconscious_instructions(bot, message)
+  bot.api.send_photo(
+    chat_id: message.from.id,
+    photo: Faraday::UploadIO.new((lang_filepath + '/steps.jpg'), 'image/jpeg'),
+    caption: 'Copyright: https://www.drk.de/fileadmin/_processed_/9/9/csm_auffinden-einer-person_7de371f707.jpg'
+  )
+end
+
+# STABILIZING
 
 def stabilize(bot, message)
   stabilize_message(bot, message)
   finish_with_calling_help(bot, message)
 end
 
+def stabilize_message(bot, message)
+  # send with web preview disabled
+  bot.api.send_message(
+    chat_id: message.from.id,
+    text: i18n_messages(:stabilize),
+    parse_mode: 'HTML',
+    disable_web_page_preview: true
+  )
+end
+
+# CALL HELP / Instructions / Questions
+
+def finish_with_calling_help(bot, message)
+  # send with web preview disabled
+  bot.api.send_message(
+    chat_id: message.from.id,
+    text: interpolate_template(i18n_messages(:finish), binding),
+    parse_mode: 'HTML',
+    disable_web_page_preview: true
+  )
+end
+
+# CONSCIOUSNESS
+
+def buttons_consciousness
+  [Telegram::Bot::Types::InlineKeyboardButton.new(text: i18n_buttons(:consciousness, :ok),
+                                                  callback_data: 'consciousness_yes'),
+   Telegram::Bot::Types::InlineKeyboardButton.new(text: i18n_buttons(:consciousness, :not_ok),
+                                                  callback_data: 'consciousness_no')]
+end
+
+def check_consciousness(bot, message)
+  bot.api.send_message(
+    chat_id: message.chat.id,
+    disable_web_page_preview: true,
+    text: i18n_messages(:consciousness),
+    parse_mode: 'HTML',
+    reply_markup: Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: buttons_consciousness)
+  )
+end
+
+def unconscious_not_breathing_instructions(bot, message)
+  bot.api.send_message(
+    chat_id: message.from.id,
+    disable_web_page_preview: true,
+    parse_mode: 'HTML',
+    text: i18n_messages(:unconscious_not_breathing)
+  )
+end
+
+def unconscious_not_breathing_hint(bot, message)
+  bot.api.send_message(
+    chat_id: message.from.id,
+    disable_web_page_preview: false,
+    parse_mode: 'HTML',
+    text: i18n_messages(:unconscious_not_breathing_hint)
+  )
+end
+
+# BREATHING
+
 def buttons_breathing
-  button_yes = i18n_buttons(:breathing, :ok)
-  button_no = i18n_buttons(:breathing, :not_ok)
-  [Telegram::Bot::Types::InlineKeyboardButton.new(text: button_yes,
+  [Telegram::Bot::Types::InlineKeyboardButton.new(text: i18n_buttons(:breathing, :ok),
                                                   callback_data: 'breathing_yes'),
-   Telegram::Bot::Types::InlineKeyboardButton.new(text: button_no,
+   Telegram::Bot::Types::InlineKeyboardButton.new(text: i18n_buttons(:breathing, :not_ok),
                                                   callback_data: 'breathing_no')]
 end
 
 def check_breathing(bot, message)
-  markup = Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: buttons_breathing)
-  text = i18n_messages(:breathing_check)
-  bot.api.send_message(chat_id: message.from.id,
-                       disable_web_page_preview: true,
-                       text:,
-                       parse_mode: 'HTML',
-                       reply_markup: markup)
+  bot.api.send_message(
+    chat_id: message.from.id,
+    disable_web_page_preview: true,
+    text: i18n_messages(:breathing_check),
+    parse_mode: 'HTML',
+    reply_markup: Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: buttons_breathing)
+  )
 end
+
+# MAIN
 
 Telegram::Bot::Client.run(token) do |bot|
   bot.listen do |message|
@@ -133,32 +187,17 @@ Telegram::Bot::Client.run(token) do |bot|
     when Telegram::Bot::Types::CallbackQuery
       # Here you can handle your callbacks from inline buttons
       case message.data
-      when 'con_yes'
-        bot.api.send_photo(chat_id: message.from.id,
-                           photo: Faraday::UploadIO.new((lang_filepath + '/steps.jpg'), 'image/jpeg'),
-                           caption: 'Copyright: https://www.drk.de/fileadmin/_processed_/9/9/csm_auffinden-einer-person_7de371f707.jpg')
-
-        # thankfully the injured is conscious
+      when 'consciousness_yes'
+        conscious_instructions(bot, message)
         finish_with_calling_help(bot, message)
-      when 'con_no'
-        bot.api.send_photo(chat_id: message.from.id,
-                           photo: Faraday::UploadIO.new((lang_filepath + '/steps.jpg'), 'image/jpeg'),
-                           caption: 'Copyright: https://www.drk.de/fileadmin/_processed_/9/9/csm_auffinden-einer-person_7de371f707.jpg')
+      when 'consciousness_no'
+        unconscious_instructions(bot, message)
         check_breathing(bot, message)
       when 'breathing_yes'
         stabilize(bot, message)
       when 'breathing_no'
-        text = i18n_messages(:unconscious_not_breathing)
-        bot.api.send_message(chat_id: message.from.id,
-                             disable_web_page_preview: true,
-                             parse_mode: 'HTML',
-                             text:)
-
-        text = i18n_messages(:unconscious_not_breathing_hint)
-        bot.api.send_message(chat_id: message.from.id,
-                             disable_web_page_preview: false,
-                             parse_mode: 'HTML',
-                             text:)
+        unconscious_not_breathing_instructions(bot, message)
+        unconscious_not_breathing_hint(bot, message)
       end
     when Telegram::Bot::Types::Message
       # Here you can handle your callbacks from messages
